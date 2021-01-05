@@ -1,0 +1,133 @@
+﻿@model IncidentTypesVM
+@using Kendo.Mvc.UI
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="shadow-lg">
+    @*<h1 class="display-4">Welcome</h1>*@
+    @*<p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>*@
+
+    <div class="row">
+        <div class="col-md-12">
+            <p class="border">
+                Near Hit: an unplanned event which in slightly different circumstances could have resulted in injury or damage to property or the environment (e.g. slammed on the brakes to avoid hitting the deer, slipped on ice but did not fall). &nbsp;
+                Safe Observation/Act: a person performing an action to generate awareness of an unsafe condition or control/remove a health, safety, environmental or security unsafe condition (i.e. hazard or risk); it may be self-reported or reported by a witness of the Safe Act (e.g. observed worker mopping up a wet area on the tile floor to reduce slipping potential, tied up my shoe laces when I noticed they had become undone).&nbsp;
+                Incident Notification: all other types of incidents (e.g. first aid incidents where professional medical assistance was not necessary, vehicle damage, medical assistance). You will be contacted by a Safety Representative to fill out an Incident form for this type of classification.&nbsp;
+                Safety 24/7: same as any of the reports above, but happens during non-working hours.
+            </p>
+        </div>
+    </div>
+    <div class="container-fluid" style="padding-top:15px">
+        <div>
+            <label>Type</label>
+
+            @(Html.Kendo().DropDownList()
+      .Name("incidenteport")
+       .OptionLabel("Select incident types...")
+        .DataValueField("id")
+      .DataTextField("incidentTypeName")
+
+      .DataSource(source =>
+      {
+          source.Read(read =>
+          {
+              read.Action("GetIncident_Type", "Home");
+          });
+      })
+      .HtmlAttributes(new { style = "width: 100%" })
+    )
+        </div>
+        <div class="form-group">
+            <label for="iDate">Date</label>
+            <input type="text" class="form-control" id="iDate" readonly="true" style="background-color:white" />
+        </div>
+        <div class="form-group">
+            <label for="iTime">Time</label>
+            <div class="input-group bootstrap-timepicker timepicker pull-right">
+                <input id="iTime" type="text" class="form-control input-small" style="z-index:50">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="iTimeZone">Time Zone</label>
+            <select class="custom-select mr-sm-2" id="iTimeZone">
+                <option value="CST">CST</option>
+                <option value="EST">EST</option>
+                <option value="MST">MST</option>
+                <option value="PST">PST</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="iPnum">Project Number</label>
+            <select class="form-control" id="iPnum">
+                <option value="TAL-00050388-60">TAL-00050388-60 (Keystone XL)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="country">Country</label>
+
+            @(Html.Kendo().DropDownList()
+      .Name("country")
+       .OptionLabel("Select Country...")
+        .DataValueField("id")
+      .DataTextField("countryName")
+
+      .DataSource(source =>
+      {
+          source.Read(read =>
+          {
+              read.Action("GetCountry", "Home");
+          });
+      })
+      .HtmlAttributes(new { style = "width: 100%" })
+    )
+        </div>
+        <div class="form-group">
+            <label for="iState">State/Province</label>
+
+            @(Html.Kendo().DropDownList()
+      .Name("state")
+       .OptionLabel("Select State...")
+        .DataValueField("id")
+      .DataTextField("stateProvinceName")
+
+      .DataSource(source =>
+      {
+          source.Read(read =>
+          {
+              read.Action("GetStates", "Home");
+          });
+      })
+      .HtmlAttributes(new { style = "width: 100%" })
+    )
+        </div>
+        <div class="form-group">
+            <label for="iLocation">Location Description</label>
+            <textarea class="form-control" id="iLocation"></textarea>
+        </div>
+        <form autocomplete="on">
+            <div class="form-group">
+                <label for="iEmployee">Employee Name</label>
+                <input type="text" class="form-control" id="iEmployee" />
+            </div>
+            <div class="form-group">
+                <label for="iEmail">Employee Email</label>
+                <input type="email" class="form-control" id="iEmail" />
+            </div>
+            <div class="form-group">
+                <label for="iCompany">Company Name</label>
+                <input type="text" class="form-control" id="iCompany" />
+            </div>
+        </form>
+        <div class="form-group">
+            <label for="iDescription">Incident Description</label>
+            <textarea class="form-control" id="iDescription"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="iAction">Action Taken</label>
+            <textarea class="form-control" id="iAction"></textarea>
+        </div>
+        <button type="button" id="submitBtn" class="k-button k-primary">Submit</button>
+        <br />
+    </div>
+</div>
