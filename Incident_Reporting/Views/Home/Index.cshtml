@@ -1,9 +1,18 @@
-﻿@model IncidentTypesVM
+﻿@model IncidentDataVM
+
 @using Kendo.Mvc.UI
+@using System.Globalization
 @{
     ViewData["Title"] = "Home Page";
 }
+<script type="text/javascript">
+    //set culture of the Kendo UI
+    kendo.culture("de-DE");
+</script>
 
+@{
+    CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("de-DE");
+}
 <div class="shadow-lg">
     @*<h1 class="display-4">Welcome</h1>*@
     @*<p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>*@
@@ -18,12 +27,32 @@
             </p>
         </div>
     </div>
-    <div class="container-fluid" style="padding-top:15px">
-        <div>
+    <div class="demo-section k-content" style="padding:20px">
+
+        <div class="form-group">
+            <h4>Select Client</h4>
+
+            @(Html.Kendo().DropDownList()
+      .Name("client")
+       .OptionLabel("Select Client...")
+        .DataValueField("id")
+      .DataTextField("clientCompanyName")
+
+      .DataSource(source =>
+      {
+          source.Read(read =>
+          {
+              read.Action("GetClient", "Home");
+          });
+      })
+      .HtmlAttributes(new { style = "width: 100%" })
+    )
+        </div>
+        <div class="form-group">
             <label>Type</label>
 
             @(Html.Kendo().DropDownList()
-      .Name("incidenteport")
+      .Name("incidenttype")
        .OptionLabel("Select incident types...")
         .DataValueField("id")
       .DataTextField("incidentTypeName")
@@ -40,28 +69,45 @@
         </div>
         <div class="form-group">
             <label for="iDate">Date</label>
-            <input type="text" class="form-control" id="iDate" readonly="true" style="background-color:white" />
+            @(Html.Kendo().DateInput()
+      .Name("dateinput")
+      .Value(DateTime.UtcNow)
+       .HtmlAttributes(new { style = "width: 100%" })
+    )
         </div>
         <div class="form-group">
             <label for="iTime">Time</label>
-            <div class="input-group bootstrap-timepicker timepicker pull-right">
-                <input id="iTime" type="text" class="form-control input-small" style="z-index:50">
-            </div>
+            @(Html.Kendo().TimePicker()
+      .Name("timeinput")
+      .Value(DateTime.UtcNow)
+             .HtmlAttributes(new { style = "width: 100%" })
+    )
+
         </div>
-        <div class="form-group">
-            <label for="iTimeZone">Time Zone</label>
-            <select class="custom-select mr-sm-2" id="iTimeZone">
-                <option value="CST">CST</option>
-                <option value="EST">EST</option>
-                <option value="MST">MST</option>
-                <option value="PST">PST</option>
-            </select>
-        </div>
+
         <div class="form-group">
             <label for="iPnum">Project Number</label>
-            <select class="form-control" id="iPnum">
-                <option value="TAL-00050388-60">TAL-00050388-60 (Keystone XL)</option>
-            </select>
+
+            @(Html.Kendo().DropDownList()
+        .Name("project")
+         .HtmlAttributes(new { style = "width: 100%" })
+        .OptionLabel("Select Project...")
+        .DataValueField("id")
+        .DataTextField("projectName")
+        .DataSource(source =>
+        {
+            source.Read(read =>
+            {
+                read.Action("GetProjects", "Home")
+                 .Data("filterProjects");
+            })
+             .ServerFiltering(true);
+        })
+
+     .Enable(false)
+    .AutoBind(false)
+     .CascadeFrom("client")
+    )
         </div>
         <div class="form-group">
             <label for="country">Country</label>
@@ -86,48 +132,122 @@
             <label for="iState">State/Province</label>
 
             @(Html.Kendo().DropDownList()
-      .Name("state")
-       .OptionLabel("Select State...")
+        .Name("state")
+         .HtmlAttributes(new { style = "width: 100%" })
+        .OptionLabel("Select State...")
         .DataValueField("id")
-      .DataTextField("stateProvinceName")
+        .DataTextField("stateProvinceName")
+        .DataSource(source =>
+        {
+            source.Read(read =>
+            {
+                read.Action("GetStates", "Home")
+                 .Data("filterStates"); 
+            })
+               .ServerFiltering(true);
+        })
 
-      .DataSource(source =>
-      {
-          source.Read(read =>
-          {
-              read.Action("GetStates", "Home");
-          });
-      })
-      .HtmlAttributes(new { style = "width: 100%" })
+           .Enable(false)
+           .AutoBind(false)
+          .CascadeFrom("country")
     )
         </div>
-        <div class="form-group">
-            <label for="iLocation">Location Description</label>
-            <textarea class="form-control" id="iLocation"></textarea>
+        <div>
+            <label for="iLocation">Location</label>
+            <ul class="fieldlist">
+                <li>
+                    @(Html.Kendo().RadioButton().Name("Field").Value("1").Checked(true).HtmlAttributes(new { @name = "loc" }).Label("Field"))
+                </li>
+                <li>
+                    @(Html.Kendo().RadioButton().Name("Office").Value("2").HtmlAttributes(new { @name = "loc" }).Label("Office"))
+                </li>
+
+            </ul>
         </div>
-        <form autocomplete="on">
-            <div class="form-group">
-                <label for="iEmployee">Employee Name</label>
-                <input type="text" class="form-control" id="iEmployee" />
-            </div>
-            <div class="form-group">
-                <label for="iEmail">Employee Email</label>
-                <input type="email" class="form-control" id="iEmail" />
-            </div>
-            <div class="form-group">
-                <label for="iCompany">Company Name</label>
-                <input type="text" class="form-control" id="iCompany" />
-            </div>
-        </form>
+        <br>
+
+        <div class="form-group">
+            <label for="iEmployee">Employee Name</label>
+            <input type="text" class="form-control" id="employee" value="@ViewBag.Name" />
+            <input type="hidden" class="form-control" id="firstname" value="@ViewBag.FirstName" />
+            <input type="hidden" class="form-control" id="lastname" value="@ViewBag.LastName" />
+        </div>
+        <div class="form-group">
+            <label for="iEmail">Employee Email</label>
+            <input type="email" class="form-control" id="email" value="@ViewBag.Email"/>
+        </div>
+        <div class="form-group">
+            <label for="iCompany">Company Name</label>
+            <input type="text" class="form-control" id="company" />
+        </div>
         <div class="form-group">
             <label for="iDescription">Incident Description</label>
-            <textarea class="form-control" id="iDescription"></textarea>
+            <textarea class="form-control" id="description"></textarea>
         </div>
         <div class="form-group">
             <label for="iAction">Action Taken</label>
-            <textarea class="form-control" id="iAction"></textarea>
+            <textarea class="form-control" id="action"></textarea>
         </div>
-        <button type="button" id="submitBtn" class="k-button k-primary">Submit</button>
+
+        <button type="button" id="submitBtn" class="k-button k-primary" onclick="BlankTemplate()">Submit</button>
+
+      
+     
         <br />
     </div>
 </div>
+@section scripts {
+    <script>
+        function filterStates() {
+            return {
+                country: $("#country").val()
+            };
+        }
+        function filterProjects() {
+            return {
+                client: $("#client").val()
+            };
+        }
+        
+       
+
+        BlankTemplate = function () {
+            var formData = 
+            {
+                ClientId: $("#client").val(),
+                IncidentTypeId: $("#incidenttype").val(),
+                DateTimeIncidentUtc: $("#dateinput").val(),
+               // timeinput: $("#timeinput").val(),
+                ProjectId: $("#project").val(),
+                CountryId: $("#country").val(),
+                StateId: $("#state").val(),
+                LocationId: $("#loc").val(),
+                ReporterCompanyName: $("#company").val(),
+                Description: $("#description").val(),
+                ActionTaken: $("#action").val(),
+                Email: $("#email").val()
+            }
+                $.ajax({
+                    url: "Home/Submit",
+                    data: formData,
+                    type: "POST"
+                });
+            }
+    
+    </script>
+}
+<style>
+    .k-readonly {
+        color: gray;
+    }
+
+    .fieldlist {
+        margin: 0 0 -1em;
+        padding: 0;
+    }
+
+    .fieldlist li {
+        list-style: none;
+        padding-bottom: 1em;
+    }
+</style>

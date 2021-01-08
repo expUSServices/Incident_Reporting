@@ -1,10 +1,11 @@
 ﻿using System;
+using Incident_Reporting.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 #nullable disable
 
-namespace Incident_Reporting.Data.Entities
+namespace Incident_Reporting.Data
 {
     public partial class TCPL_Keystone_XL_Safety_ReportsContext : DbContext, ITCPL_Keystone_XL_Safety_ReportsContext
     {
@@ -27,6 +28,18 @@ namespace Incident_Reporting.Data.Entities
         public virtual DbSet<Project> Projects { get; set; }
         public virtual DbSet<StateProvince> StateProvinces { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Location_Class> Location_Classes { get; set; }
+        //DbSet<Attachment> ITCPL_Keystone_XL_Safety_ReportsContext.Attachments { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        //DbSet<Client> ITCPL_Keystone_XL_Safety_ReportsContext.Clients { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        //DbSet<Country> ITCPL_Keystone_XL_Safety_ReportsContext.Countries { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        //DbSet<IncidentReport> ITCPL_Keystone_XL_Safety_ReportsContext.IncidentReports { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        //DbSet<IncidentToAttachment> ITCPL_Keystone_XL_Safety_ReportsContext.IncidentToAttachments { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        //DbSet<IncidentToStateProvince> ITCPL_Keystone_XL_Safety_ReportsContext.IncidentToStateProvinces { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        //DbSet<IncidentType> ITCPL_Keystone_XL_Safety_ReportsContext.IncidentTypes { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        //DbSet<Project> ITCPL_Keystone_XL_Safety_ReportsContext.Projects { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        //DbSet<StateProvince> ITCPL_Keystone_XL_Safety_ReportsContext.StateProvinces { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        //DbSet<User> ITCPL_Keystone_XL_Safety_ReportsContext.Users { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        //DbSet<Location_Class> ITCPL_Keystone_XL_Safety_ReportsContext.Location_Classes { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

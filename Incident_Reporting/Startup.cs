@@ -2,16 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Incident_Reporting.Data;
+using Incident_Reporting.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.AzureAD.UI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json.Serialization;
 
 namespace Incident_Reporting
 {
@@ -27,6 +32,14 @@ namespace Incident_Reporting
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var TCPL_Keystone_XL_Safety_ReportsConn = Configuration.GetConnectionString("TCPL_Keystone_XL_Safety_ReportsConn");
+            services
+                .AddDbContext<TCPL_Keystone_XL_Safety_ReportsContext>(options => options.UseSqlServer(TCPL_Keystone_XL_Safety_ReportsConn));
+            services.AddKendo();
+            services.AddApplicationServices();
+            services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                   .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
+
             services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
                 .AddAzureAD(options => Configuration.Bind("AzureAd", options));
 
@@ -38,7 +51,8 @@ namespace Incident_Reporting
                 options.Filters.Add(new AuthorizeFilter(policy));
             });
             services.AddRazorPages();
-            services.AddKendo();
+            //services.AddScoped<IDataService<IncidentDataVM>, baseda>();
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

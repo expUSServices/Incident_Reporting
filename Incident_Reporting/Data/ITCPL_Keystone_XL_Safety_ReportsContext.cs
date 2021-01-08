@@ -19,5 +19,6 @@ namespace Incident_Reporting.Data
         DbSet<Project> Projects { get; set; }
         DbSet<StateProvince> StateProvinces { get; set; }
         DbSet<User> Users { get; set; }
+        DbSet<Location_Class> Location_Classes { get; set; }
     }
 }
