@@ -18,8 +18,4 @@
     <PackageReference Include="Telerik.UI.for.AspNet.Core" Version="2020.3.1118" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Classes\" />
-  </ItemGroup>
-
 </Project>

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Incident_Reporting.Data.Entities;
 using Incident_Reporting.Data;
 using Microsoft.EntityFrameworkCore;
+using Incident_Reporting.Classes.Exceptions;
 
 namespace Incident_Reporting.Controllers
 {
@@ -147,7 +148,7 @@ namespace Incident_Reporting.Controllers
         }
         public IActionResult Submit(IncidentDataVM incidentData)
         {
-
+            try { 
             int userId=0;
             if (string.IsNullOrEmpty(incidentData.Email))
             {
@@ -184,7 +185,7 @@ namespace Incident_Reporting.Controllers
                     ProjectId= incidentData.ProjectId,
                     DateTimeIncidentUtc=incidentData.DateTimeIncidentUtc,
                      ReporterCompanyName=incidentData.ReporterCompanyName,
-                    LocationClassId = incidentData.LocationId,
+                    LocationClassId = 1,
                     Description= incidentData.Description,
                     ActionTaken=incidentData.Description,
                      DateTimeReportedUtc= DateTime.UtcNow
@@ -193,9 +194,16 @@ namespace Incident_Reporting.Controllers
                 incidentDC.IncidentReports.Add(newincidentReport);
                 incidentDC.Entry(newincidentReport).State = EntityState.Added;
                 incidentDC.SaveChanges();
+                }
+                return View();
             }
-               
-            return View();
+
+            catch (Exception e)
+            {
+                //transaction.Rollback();
+                throw new ShowMessageException(e.InnerException.Message);
+            }
+           
         }
 
         [AllowAnonymous]

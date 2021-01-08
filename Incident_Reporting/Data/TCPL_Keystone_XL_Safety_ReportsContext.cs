@@ -173,6 +173,12 @@ namespace Incident_Reporting.Data
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_IncidentReport_User");
+
+                entity.HasOne(d => d.Location_Class)
+                  .WithMany(p => p.IncidentReports)
+                  .HasForeignKey(d => d.LocationClassId)
+                  .OnDelete(DeleteBehavior.ClientSetNull)
+                  .HasConstraintName("FK_IncidentReport_Location_Class");
             });
 
             modelBuilder.Entity<IncidentToAttachment>(entity =>
@@ -331,7 +337,20 @@ namespace Incident_Reporting.Data
                     .IsUnicode(false)
                     .HasColumnName("lastName");
             });
+            modelBuilder.Entity<Location_Class>(entity =>
+            {
+                entity.ToTable("Location_Class");
 
+            
+                entity.Property(e => e.Id).HasColumnName("id");
+
+                entity.Property(e => e.locationClassName)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("firstName");
+
+            });
             OnModelCreatingPartial(modelBuilder);
         }
 

@@ -7,11 +7,11 @@ namespace Incident_Reporting.Data.Entities
     {
         public Location_Class()
         {
-            Projects = new HashSet<Project>();
+            IncidentReports = new HashSet<IncidentReport>();
         }
         public int Id { get; set; }
         public string locationClassName { get; set; }
 
-        public virtual ICollection<Project> Projects { get; set; }
+        public virtual ICollection<IncidentReport> IncidentReports { get; set; }
     }
 }
