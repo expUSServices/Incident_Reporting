@@ -10,230 +10,282 @@
     kendo.culture("de-DE");
 </script>
 
+
+@addTagHelper *, Kendo.Mvc
 @{
     CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("de-DE");
+    var messages = new Dictionary<string, string>() { { "custom", "Please choose another Start Time." } };
+    var rules = new Dictionary<string, string>() { { "custom", "customFunction" } };
 }
 <div class="shadow-lg">
-    @*<h1 class="display-4">Welcome</h1>*@
-    @*<p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>*@
-
-    <div class="row">
-        <div class="col-md-12">
-            <p class="border">
-                Near Hit: an unplanned event which in slightly different circumstances could have resulted in injury or damage to property or the environment (e.g. slammed on the brakes to avoid hitting the deer, slipped on ice but did not fall). &nbsp;
-                Safe Observation/Act: a person performing an action to generate awareness of an unsafe condition or control/remove a health, safety, environmental or security unsafe condition (i.e. hazard or risk); it may be self-reported or reported by a witness of the Safe Act (e.g. observed worker mopping up a wet area on the tile floor to reduce slipping potential, tied up my shoe laces when I noticed they had become undone).&nbsp;
-                Incident Notification: all other types of incidents (e.g. first aid incidents where professional medical assistance was not necessary, vehicle damage, medical assistance). You will be contacted by a Safety Representative to fill out an Incident form for this type of classification.&nbsp;
-                Safety 24/7: same as any of the reports above, but happens during non-working hours.
-            </p>
-        </div>
-    </div>
+ 
     <div class="demo-section k-content" style="padding:20px">
-
-        <div class="form-group">
-            <h4>Select Client</h4>
-
-            @(Html.Kendo().DropDownList()
-      .Name("client")
-       .OptionLabel("Select Client...")
-        .DataValueField("id")
-      .DataTextField("clientCompanyName")
-
-      .DataSource(source =>
-      {
-          source.Read(read =>
-          {
-              read.Action("GetClient", "Home");
-          });
-      })
-      .HtmlAttributes(new { style = "width: 100%" })
-    )
-        </div>
-        <div class="form-group">
-            <label>Type</label>
-
-            @(Html.Kendo().DropDownList()
-      .Name("incidenttype")
-       .OptionLabel("Select incident types...")
-        .DataValueField("id")
-      .DataTextField("incidentTypeName")
-
-      .DataSource(source =>
-      {
-          source.Read(read =>
-          {
-              read.Action("GetIncident_Type", "Home");
-          });
-      })
-      .HtmlAttributes(new { style = "width: 100%" })
-    )
-        </div>
-        <div class="form-group">
-            <label for="iDate">Date</label>
-            @(Html.Kendo().DateInput()
-      .Name("dateinput")
-      .Value(DateTime.UtcNow)
-       .HtmlAttributes(new { style = "width: 100%" })
-    )
-        </div>
-        <div class="form-group">
-            <label for="iTime">Time</label>
-            @(Html.Kendo().TimePicker()
-      .Name("timeinput")
-      .Value(DateTime.UtcNow)
-             .HtmlAttributes(new { style = "width: 100%" })
-    )
-
+        <div id="validation-summary">
         </div>
 
-        <div class="form-group">
-            <label for="iPnum">Project Number</label>
+        <form id="ticketsForm" class="k-form k-form-vertical" kendo-validator="true" kendo-messages="messages" kendo-rules="rules" asp-action="Submit">
 
-            @(Html.Kendo().DropDownList()
-        .Name("project")
-         .HtmlAttributes(new { style = "width: 100%" })
-        .OptionLabel("Select Project...")
-        .DataValueField("id")
-        .DataTextField("projectName")
-        .DataSource(source =>
-        {
-            source.Read(read =>
-            {
-                read.Action("GetProjects", "Home")
-                 .Data("filterProjects");
-            })
-             .ServerFiltering(true);
-        })
+            <ul class="k-form-group">
 
-     .Enable(false)
-    .AutoBind(false)
-     .CascadeFrom("client")
-    )
-        </div>
-        <div class="form-group">
-            <label for="country">Country</label>
-
-            @(Html.Kendo().DropDownList()
-      .Name("country")
-       .OptionLabel("Select Country...")
-        .DataValueField("id")
-      .DataTextField("countryName")
-
-      .DataSource(source =>
-      {
-          source.Read(read =>
-          {
-              read.Action("GetCountry", "Home");
-          });
-      })
-      .HtmlAttributes(new { style = "width: 100%" })
-    )
-        </div>
-        <div class="form-group">
-            <label for="iState">State/Province</label>
-
-            @(Html.Kendo().DropDownList()
-        .Name("state")
-         .HtmlAttributes(new { style = "width: 100%" })
-        .OptionLabel("Select State...")
-        .DataValueField("id")
-        .DataTextField("stateProvinceName")
-        .DataSource(source =>
-        {
-            source.Read(read =>
-            {
-                read.Action("GetStates", "Home")
-                 .Data("filterStates"); 
-            })
-               .ServerFiltering(true);
-        })
-
-           .Enable(false)
-           .AutoBind(false)
-          .CascadeFrom("country")
-    )
-        </div>
-        <div>
-            <label for="iLocation">Location</label>
-            <ul class="fieldlist">
-                <li>
-                    @(Html.Kendo().RadioButton().Name("Field").Value("1").Checked(true).HtmlAttributes(new { @name = "loc" }).Label("Field"))
+                <li class="k-form-field">
+                    <p class="border">
+                        Near Hit: an unplanned event which in slightly different circumstances could have resulted in injury or damage to property or the environment (e.g. slammed on the brakes to avoid hitting the deer, slipped on ice but did not fall). &nbsp;
+                        Safe Observation/Act: a person performing an action to generate awareness of an unsafe condition or control/remove a health, safety, environmental or security unsafe condition (i.e. hazard or risk); it may be self-reported or reported by a witness of the Safe Act (e.g. observed worker mopping up a wet area on the tile floor to reduce slipping potential, tied up my shoe laces when I noticed they had become undone).&nbsp;
+                        Incident Notification: all other types of incidents (e.g. first aid incidents where professional medical assistance was not necessary, vehicle damage, medical assistance). You will be contacted by a Safety Representative to fill out an Incident form for this type of classification.&nbsp;
+                        Safety 24/7: same as any of the reports above, but happens during non-working hours.
+                    </p>
                 </li>
-                <li>
-                    @(Html.Kendo().RadioButton().Name("Office").Value("2").HtmlAttributes(new { @name = "loc" }).Label("Office"))
+                <li class="k-form-field">
+                    <label for="ClientId" class="k-form-label">Select Client</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().DropDownList()
+                                    .Name("ClientId")
+                                    .OptionLabel("Select Client...")
+                                    .DataValueField("id")
+                                    .HtmlAttributes(new { required = "required" })
+                                    .DataTextField("clientCompanyName")
+                                    .DataSource(source =>
+                                      {
+                                          source.Read(read =>
+                                          {
+                                              read.Action("GetClient", "Home");
+                                          });
+                                      })
+    )
+                    </span>
                 </li>
+                <li class="k-form-field">
+                    <label for="fullname" class="k-form-label">Select Incident Type</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().DropDownList()
+                                  .Name("IncidentTypeId")
+                                  .OptionLabel("Select Incident types...")
+                                  .DataValueField("id")
+                                  .DataTextField("incidentTypeName")
+                                  .DataSource(source =>
+                                  {
+                                      source.Read(read =>
+                                      {
+                                          read.Action("GetIncident_Type", "Home");
+                                      });
+                                  })
+                                  .HtmlAttributes(new { style = "width: 100%" })
+                                )
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="fullname" class="k-form-label">Select Incident Date and Time </label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().DateTimePicker()
+                              .Name("DateTimeIncidentUtc")
+                              .Value(DateTime.UtcNow)
+                              .HtmlAttributes(new { required = "required", style = "width: 100%" })
+    )
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="fullname" class="k-form-label">Select Project Number </label>
+                    <span class="k-form-field-wrap">
 
+                        @(Html.Kendo().DropDownList()
+                        .Name("ProjectId")
+                        .HtmlAttributes(new { required = "required", style = "width: 100%", validationmessage = "Select Project" })
+                        .OptionLabel("Select Project...")
+                        .DataValueField("id")
+                        .DataTextField("projectName")
+                        .DataSource(source =>
+                        {
+                            source.Read(read =>
+                            {
+                                read.Action("GetProjects", "Home")
+                                 .Data("filterProjects");
+                            })
+                             .ServerFiltering(true);
+                        })
+                         .Enable(false)
+                         .AutoBind(false)
+                         .CascadeFrom("ClientId")
+                        )
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="fullname" class="k-form-label">Select Country </label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().DropDownList()
+                       .Name("CountryId")
+                       .OptionLabel("Select Country...")
+                       .DataValueField("id")
+                       .DataTextField("countryName")
+
+                      .DataSource(source =>
+                      {
+                          source.Read(read =>
+                          {
+                              read.Action("GetCountry", "Home");
+                          });
+                      })
+                      .HtmlAttributes(new { style = "width: 100%" ,required = "required", validationmessage = "Select Country" })
+    )
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="fullname" class="k-form-label">Select State/Province </label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().DropDownList()
+                        .Name("StateId")
+                        .HtmlAttributes(new { required = "required", style = "width: 100%" , validationmessage = "Select State/Province" })
+                        .OptionLabel("Select State...")
+                        .DataValueField("id")
+                        .DataTextField("stateProvinceName")
+                        .DataSource(source =>
+                        {
+                            source.Read(read =>
+                            {
+                                read.Action("GetStates", "Home")
+                                 .Data("filterStates");
+                            })
+                               .ServerFiltering(true);
+                        })
+
+                        .Enable(false)
+                        .AutoBind(false)
+                        .CascadeFrom("CountryId")
+                    )
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="iLocation">Location</label>
+                    <ul class="fieldlist">
+                        <li>
+                            @(Html.Kendo().RadioButton().Name("Field").Value("1").Checked(true).HtmlAttributes(new { @name = "LocationId" }).Label("Field"))
+                        </li>
+                        <li>
+                            @(Html.Kendo().RadioButton().Name("Office").Value("2").HtmlAttributes(new { @name = "LocationId" }).Label("Office"))
+                        </li>
+
+                    </ul>
+                </li>
+                <li class="k-form-field">
+                    <label for="employee" class="k-form-label">Employee Name</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo()
+                        .TextBox()
+                        .Name("employee")
+                        .Value(@ViewBag.Name)
+                        .HtmlAttributes(new {  required = "required", validationmessage = "Enter Employee Name" })
+                    )
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="email" class="k-form-label">Employee Email</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo()
+                        .TextBox()
+                        .Name("email")
+                        .Value(@ViewBag.Email)
+                        .HtmlAttributes(new {  required = "required", validationmessage = "Enter Employee Email" })
+                    )
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="company" class="k-form-label">Company Name</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo()
+                        .TextBox()
+                        .Name("ReporterCompanyName")
+                        .HtmlAttributes(new {  required = "required", validationmessage = "Enter Company Name" })
+                    )
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="description" class="k-form-label">Incident Description</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo()
+                        .TextArea()
+                        .Name("Description")
+                        .Rows(5)
+                        .MaxLength(200)
+                        .HtmlAttributes(new { placeholder = "Enter Incident Description",required = "required", validationmessage = "Enter Incident Description" })
+                    )
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="action" class="k-form-label">Action Taken</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo()
+                        .TextArea()
+                       .Name("ActionTaken")
+                        .Rows(10)
+                        .MaxLength(200)
+                        .HtmlAttributes(new { placeholder = "Enter Action Taken",  required = "required", validationmessage = "Enter Action Taken" })
+                    )
+                    </span>
+                </li>
+                <li class="k-form-buttons">
+                    <button type="submit" id="submitBtn" class="k-button k-primary">Submit</button>
+
+                </li>
             </ul>
-        </div>
-        <br>
-
-        <div class="form-group">
-            <label for="iEmployee">Employee Name</label>
-            <input type="text" class="form-control" id="employee" value="@ViewBag.Name" />
-            <input type="hidden" class="form-control" id="firstname" value="@ViewBag.FirstName" />
-            <input type="hidden" class="form-control" id="lastname" value="@ViewBag.LastName" />
-        </div>
-        <div class="form-group">
-            <label for="iEmail">Employee Email</label>
-            <input type="email" class="form-control" id="email" value="@ViewBag.Email"/>
-        </div>
-        <div class="form-group">
-            <label for="iCompany">Company Name</label>
-            <input type="text" class="form-control" id="company" />
-        </div>
-        <div class="form-group">
-            <label for="iDescription">Incident Description</label>
-            <textarea class="form-control" id="description"></textarea>
-        </div>
-        <div class="form-group">
-            <label for="iAction">Action Taken</label>
-            <textarea class="form-control" id="action"></textarea>
-        </div>
-
-        <button type="button" id="submitBtn" class="k-button k-primary" onclick="BlankTemplate()">Submit</button>
-
-      
-     
-        <br />
+        </form>
     </div>
+
 </div>
 @section scripts {
     <script>
         function filterStates() {
             return {
-                country: $("#country").val()
+                CountryId: $("#CountryId").val()
             };
         }
         function filterProjects() {
             return {
-                client: $("#client").val()
+                ClientId: $("#ClientId").val()
             };
         }
-        
-       
+
+
 
         BlankTemplate = function () {
-            var formData = 
+         
+            var formData =
             {
                 ClientId: $("#client").val(),
                 IncidentTypeId: $("#incidenttype").val(),
                 DateTimeIncidentUtc: $("#dateinput").val(),
-               // timeinput: $("#timeinput").val(),
                 ProjectId: $("#project").val(),
                 CountryId: $("#country").val(),
                 StateId: $("#state").val(),
-                LocationId: $("#loc").val(),
+                LocationId: $('input[name="loc"]:checked').val(),
                 ReporterCompanyName: $("#company").val(),
                 Description: $("#description").val(),
                 ActionTaken: $("#action").val(),
                 Email: $("#email").val()
             }
-                $.ajax({
-                    url: "Home/Submit",
-                    data: formData,
-                    type: "POST"
-                });
+            $.ajax({
+                url: "Home/Submit",
+                data: formData,
+                type: "POST",
+            
+                success: function (response) {
+                    alert(response);
+                    alert(response.success);
+                    if (response.success == true) {
+                         window.location.href = '@Url.Action("Success", "Home")';
+                    }
+            },
+                error: function (response) {
+                alert('error occured');
             }
-    
+            });
+        }
+        function customFunction(input) {
+
+            if (input.attr('name') === "time" && input.val() == "14:00") {
+                return false;
+            }
+
+            return true;
+        }
     </script>
 }
 <style>
@@ -246,8 +298,8 @@
         padding: 0;
     }
 
-    .fieldlist li {
-        list-style: none;
-        padding-bottom: 1em;
-    }
+        .fieldlist li {
+            list-style: none;
+            padding-bottom: 1em;
+        }
 </style>

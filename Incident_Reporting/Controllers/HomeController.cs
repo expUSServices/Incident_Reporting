@@ -97,7 +97,7 @@ namespace Incident_Reporting.Controllers
             }
         }
 
-        public JsonResult GetStates(int? country)
+        public JsonResult GetStates(int? CountryId)
         {
             try
             {
@@ -105,9 +105,9 @@ namespace Incident_Reporting.Controllers
               
                 {
                     var state = stateDC.StateProvinces.AsQueryable();
-                    if (country != null)
+                    if (CountryId != null)
                     {
-                        state = state.Where(p => p.CountryId == country);
+                        state = state.Where(p => p.CountryId == CountryId);
                     }
 
                     return Json(state.Select(p => new { id = p.Id, stateProvinceName = p.StateProvinceName }).ToList());
@@ -120,7 +120,7 @@ namespace Incident_Reporting.Controllers
             }
         }
 
-        public JsonResult GetProjects(int? client)
+        public JsonResult GetProjects(int? ClientId)
         {
             try
             {
@@ -128,9 +128,9 @@ namespace Incident_Reporting.Controllers
              
                 {
                     var project = projectDC.Projects.AsQueryable();
-                    if (client != null)
+                    if (ClientId != null)
                     {
-                        project = project.Where(p => p.ClientId == client);
+                        project = project.Where(p => p.ClientId == ClientId);
                     }
 
                     return Json(project.Select(p => new { id = p.Id, projectName = p.ProjectName }).ToList());
@@ -146,61 +146,96 @@ namespace Incident_Reporting.Controllers
         {
             return View();
         }
+        [HttpPost]
         public IActionResult Submit(IncidentDataVM incidentData)
         {
-            try { 
-            int userId=0;
-            if (string.IsNullOrEmpty(incidentData.Email))
+            try
             {
-                var user = _incidentDataService.FindUser();
-                using (TCPL_Keystone_XL_Safety_ReportsContext userDC = new TCPL_Keystone_XL_Safety_ReportsContext())
+                if (ModelState.IsValid)
                 {
-                    //var userDB = userDC.Users.AsQueryable();
-                    //userId = Convert.ToInt32(userDB.Where(p => p.Email == user.Email).FirstOrDefault());
+                    int userId = 0;
+                    if (string.IsNullOrEmpty(incidentData.Email))
+                    {
+                        var user = _incidentDataService.FindUser();
+                        using (TCPL_Keystone_XL_Safety_ReportsContext userDC = new TCPL_Keystone_XL_Safety_ReportsContext())
+                        {
+                            //var userDB = userDC.Users.AsQueryable();
+                            //userId = Convert.ToInt32(userDB.Where(p => p.Email == user.Email).FirstOrDefault());
 
-                    var userDB = userDC.Users.FirstOrDefault(u => u.Email == user.Email);
-                    userId = userDB.Id;
+                            var userDB = userDC.Users.FirstOrDefault(u => u.Email == user.Email);
+                            userId = userDB.Id;
+                        }
+
+                    }
+                    else
+                    {
+                        using (TCPL_Keystone_XL_Safety_ReportsContext userDC = new TCPL_Keystone_XL_Safety_ReportsContext())
+                        //using (var userDC = _dbContext as TCPL_Keystone_XL_Safety_ReportsContext)
+                        {
+                            //var user = userDC.Users.AsQueryable();
+
+                            var userDB = userDC.Users.FirstOrDefault(u => u.Email == incidentData.Email);
+                            userId = userDB.Id;
+                        }
+
+                    }
+                    using (TCPL_Keystone_XL_Safety_ReportsContext incidentDC = new TCPL_Keystone_XL_Safety_ReportsContext())
+                    {
+
+                        using (var transaction = incidentDC.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
+                        {
+                            try { 
+                            var dateTimeUtcNow = DateTime.UtcNow;
+
+                            var newincidentReport = new IncidentReport()
+                            {
+                                IncidentTypeId = incidentData.IncidentTypeId,
+                                UserId = userId,
+                                ProjectId = incidentData.ProjectId,
+                                DateTimeIncidentUtc = incidentData.DateTimeIncidentUtc,
+                                ReporterCompanyName = incidentData.ReporterCompanyName,
+                                LocationClassId = incidentData.LocationId,
+                                Description = incidentData.Description,
+                                ActionTaken = incidentData.ActionTaken,
+                                DateTimeReportedUtc = DateTime.UtcNow
+                            };
+
+                            incidentDC.IncidentReports.Add(newincidentReport);
+                            incidentDC.Entry(newincidentReport).State = EntityState.Added;
+                            incidentDC.SaveChanges();
+
+                            int incidentId = newincidentReport.Id;
+                            var incidentToState = new IncidentToStateProvince()
+                            {
+                                IncidentId = incidentId,
+                                StateProvinceId = incidentData.StateId
+                            };
+                            incidentDC.IncidentToStateProvinces.Add(incidentToState);
+                            incidentDC.Entry(incidentToState).State = EntityState.Added;
+                            incidentDC.SaveChanges();
+                            transaction.Commit();
+                            }
+                            catch (Exception e)
+                            {
+                                transaction.Rollback();
+                                throw new ShowMessageException(e.InnerException.Message);
+                            }
+                        }
+                    }
+                }
+                else
+                { 
+                 
+                    return Json(new { success = false, message = "Error" });
                 }
 
-            }
-            else
-            {
-                using (TCPL_Keystone_XL_Safety_ReportsContext userDC = new TCPL_Keystone_XL_Safety_ReportsContext())
-                //using (var userDC = _dbContext as TCPL_Keystone_XL_Safety_ReportsContext)
-                {
-                    //var user = userDC.Users.AsQueryable();
-
-                    var userDB = userDC.Users.FirstOrDefault(u => u.Email == incidentData.Email);
-                    userId = userDB.Id;
-                }
-               
-            }
-            using (TCPL_Keystone_XL_Safety_ReportsContext incidentDC = new TCPL_Keystone_XL_Safety_ReportsContext())
-            {
-                var dateTimeUtcNow = DateTime.UtcNow;
-
-                var newincidentReport = new IncidentReport()
-                {   IncidentTypeId= incidentData.IncidentTypeId,
-                    UserId = userId,
-                    ProjectId= incidentData.ProjectId,
-                    DateTimeIncidentUtc=incidentData.DateTimeIncidentUtc,
-                     ReporterCompanyName=incidentData.ReporterCompanyName,
-                    LocationClassId = 1,
-                    Description= incidentData.Description,
-                    ActionTaken=incidentData.Description,
-                     DateTimeReportedUtc= DateTime.UtcNow
-                };
-
-                incidentDC.IncidentReports.Add(newincidentReport);
-                incidentDC.Entry(newincidentReport).State = EntityState.Added;
-                incidentDC.SaveChanges();
-                }
-                return View();
+                return View("Success");
+                //return Json(new { success = true, message = "" });
             }
 
             catch (Exception e)
             {
-                //transaction.Rollback();
+               // transaction.Rollback();
                 throw new ShowMessageException(e.InnerException.Message);
             }
            
@@ -211,6 +246,11 @@ namespace Incident_Reporting.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult Success()
+        {
+            return View("Success");
         }
     }
 }

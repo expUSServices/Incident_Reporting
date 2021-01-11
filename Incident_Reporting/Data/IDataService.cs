@@ -22,15 +22,15 @@ namespace Incident_Reporting.Data
        // DbSet<T> GetValues<T>() where T : class;
        // IEnumerable<object> GetValues(string T);
         User FindUser(string userName = null);
-       //DbContext DbContext { get; }
+      // DbContext DbContext { get; }
     }
 
-    //public interface IDataService<TModel> : IDataService
-    //    where TModel : class
-    //{
-    //    IEnumerable<TModel> Read(bool showDeleted = false);
-    //    void Create(TModel model);
-    //    void Update(TModel model);
-    //    void Destroy(TModel model);
-    //}
+    public interface IDataService<TModel> : IDataService
+        where TModel : class
+    {
+        IEnumerable<TModel> Read(bool showDeleted = false);
+        void Create(TModel model);
+        void Update(TModel model);
+        void Destroy(TModel model);
+    }
 }

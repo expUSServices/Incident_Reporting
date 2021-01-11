@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Incident Reporting</title>
     @*css*@
+    <link href="~/shared/styles/base.min.css" rel="stylesheet" />
+    <link href="~/lib/kendo/css/web/kendo.default-v2.min.css" rel="stylesheet" />
     <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="~/styles/kendo.common-bootstrap.min.css" />
-    <link rel="stylesheet" href="~/styles/kendo.bootstrap.min.css" />
-
-    @*<link href="~/css/kendo.common-bootstrap.min.css" rel="stylesheet" />*@
-    @*   <link href="~/css/kendo.bootstrap-v4.min.css" rel="stylesheet" />*@
-    @*<link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.css" />*@
+   
 
     @*java script*@
     <script src="~/js/jquery.min.js"></script>
@@ -40,9 +37,9 @@
         </nav>
     </header>
     <div class="container-fluid">
-        <main role="main" class="pb-3">
+      
             @RenderBody()
-        </main>
+      
     </div>
     <footer class="border-top text-muted" style="text-align: center">
         <span>Copyright &copy; 2020</span>
