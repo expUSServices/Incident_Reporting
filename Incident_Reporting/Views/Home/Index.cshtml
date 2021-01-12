@@ -221,6 +221,18 @@
                     )
                     </span>
                 </li>
+                <li class="k-form-field">
+                    <label for="action" class="k-form-label">
+                        Upload Docs
+                    </label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().Upload()
+                        .Name("files").Multiple(false)
+                        .HtmlAttributes(new { @style = "width:100%" })
+                        //.HtmlAttributes(new { accept = ".doc, .docx, .pdf, .ppt, .pptx " }) 
+                        )
+                    </span>
+                </li>
                 <li class="k-form-buttons">
                     <button type="submit" id="submitBtn" class="k-button k-primary">Submit</button>
 

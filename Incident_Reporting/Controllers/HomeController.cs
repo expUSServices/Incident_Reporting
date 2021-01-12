@@ -13,6 +13,11 @@ using Incident_Reporting.Data.Entities;
 using Incident_Reporting.Data;
 using Microsoft.EntityFrameworkCore;
 using Incident_Reporting.Classes.Exceptions;
+using System.Net.Http.Headers;
+using System.IO;
+using Microsoft.Extensions.Hosting.Internal;
+using Microsoft.AspNetCore.Hosting;
+using System.Text;
 
 namespace Incident_Reporting.Controllers
 {
@@ -20,13 +25,16 @@ namespace Incident_Reporting.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly IDataService _incidentDataService;
+        private readonly IDataService<IncidentDataVM> _incidentDataService;
         protected readonly ITCPL_Keystone_XL_Safety_ReportsContext _dbContext;
-        public HomeController(ILogger<HomeController> logger, IDataService incidentDataService, ITCPL_Keystone_XL_Safety_ReportsContext dbContext)
+        private readonly IWebHostEnvironment _environment;
+
+        public HomeController(ILogger<HomeController> logger, IDataService<IncidentDataVM> incidentDataService, ITCPL_Keystone_XL_Safety_ReportsContext dbContext, IWebHostEnvironment environment)
         {
             _logger = logger;
             _incidentDataService = incidentDataService;
             _dbContext = dbContext;
+             _environment = environment;
         }
 
 
@@ -147,23 +155,21 @@ namespace Incident_Reporting.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Submit(IncidentDataVM incidentData)
+        public IActionResult Submit(IncidentDataVM incidentData, IList<IFormFile> files)
         {
             try
             {
+
                 if (ModelState.IsValid)
                 {
-                    int userId = 0;
+                    int loggedinuserId = 0;
                     if (string.IsNullOrEmpty(incidentData.Email))
                     {
                         var user = _incidentDataService.FindUser();
                         using (TCPL_Keystone_XL_Safety_ReportsContext userDC = new TCPL_Keystone_XL_Safety_ReportsContext())
                         {
-                            //var userDB = userDC.Users.AsQueryable();
-                            //userId = Convert.ToInt32(userDB.Where(p => p.Email == user.Email).FirstOrDefault());
-
-                            var userDB = userDC.Users.FirstOrDefault(u => u.Email == user.Email);
-                            userId = userDB.Id;
+                           var userDB = userDC.Users.FirstOrDefault(u => u.Email == user.Email);
+                            loggedinuserId = userDB.Id;
                         }
 
                     }
@@ -175,45 +181,73 @@ namespace Incident_Reporting.Controllers
                             //var user = userDC.Users.AsQueryable();
 
                             var userDB = userDC.Users.FirstOrDefault(u => u.Email == incidentData.Email);
-                            userId = userDB.Id;
+                            loggedinuserId = userDB.Id;
                         }
 
                     }
+              
+                    var dateTimeUtcNow = DateTime.UtcNow;
+
+                    var newincidentReport = new IncidentDataVM()
+                    {
+                        IncidentTypeId = incidentData.IncidentTypeId,
+                        UserId = loggedinuserId,
+                        ProjectId = incidentData.ProjectId,
+                        DateTimeIncidentUtc = incidentData.DateTimeIncidentUtc,
+                        ReporterCompanyName = incidentData.ReporterCompanyName,
+                        LocationId = incidentData.LocationId,
+                        Description = incidentData.Description,
+                        ActionTaken = incidentData.ActionTaken,
+                        StateId= incidentData.StateId,
+                        DateTimeReportedUtc = DateTime.UtcNow
+                    };
                     using (TCPL_Keystone_XL_Safety_ReportsContext incidentDC = new TCPL_Keystone_XL_Safety_ReportsContext())
                     {
 
                         using (var transaction = incidentDC.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
                         {
-                            try { 
-                            var dateTimeUtcNow = DateTime.UtcNow;
-
-                            var newincidentReport = new IncidentReport()
+                            try
                             {
-                                IncidentTypeId = incidentData.IncidentTypeId,
-                                UserId = userId,
-                                ProjectId = incidentData.ProjectId,
-                                DateTimeIncidentUtc = incidentData.DateTimeIncidentUtc,
-                                ReporterCompanyName = incidentData.ReporterCompanyName,
-                                LocationClassId = incidentData.LocationId,
-                                Description = incidentData.Description,
-                                ActionTaken = incidentData.ActionTaken,
-                                DateTimeReportedUtc = DateTime.UtcNow
-                            };
+                                _incidentDataService.Create(newincidentReport);
 
-                            incidentDC.IncidentReports.Add(newincidentReport);
-                            incidentDC.Entry(newincidentReport).State = EntityState.Added;
-                            incidentDC.SaveChanges();
+                                int incidentId = newincidentReport.Id;
+                               
+                                if (files != null && files.Count() > 0)
+                                {
+                                    for (var i = 0; i < files.Count(); i++)
+                                    {
+                                        var file = files[i];
+                                        var fileName = Path.GetFileName(file.FileName); // GetFileName is necessary for Edge and prob IE
+                                        var fileSize = file.Length;
+                                        var fileData = new StringBuilder();
 
-                            int incidentId = newincidentReport.Id;
-                            var incidentToState = new IncidentToStateProvince()
-                            {
-                                IncidentId = incidentId,
-                                StateProvinceId = incidentData.StateId
-                            };
-                            incidentDC.IncidentToStateProvinces.Add(incidentToState);
-                            incidentDC.Entry(incidentToState).State = EntityState.Added;
-                            incidentDC.SaveChanges();
-                            transaction.Commit();
+                                        using (var reader = new StreamReader(file.OpenReadStream()))
+                                        {
+                                            using (var fileStream = new MemoryStream())
+                                            {
+                                                var s = reader.ReadLine();
+                                                while (s != null)
+                                                {
+                                                    fileData.Append(s);
+                                                    fileData.Append(Environment.NewLine);
+                                                    s = reader.ReadLine();
+                                                }
+                                            }
+                                        }
+                                        using (var stream = GenerateMemoryStreamFromString(fileData.ToString()))
+                                        {
+
+                                            var newincidentReportFileAttach = new IncidentDataVM()
+                                            {
+                                                Id= newincidentReport.Id,
+                                                FileLocation = file.FileName,
+                                                FileExtension = stream.ToArray()
+                                            };
+                                            _incidentDataService.CreateAttachment(newincidentReportFileAttach);
+                                        }
+                                    }
+                                    transaction.Commit();
+                                }
                             }
                             catch (Exception e)
                             {
@@ -221,7 +255,9 @@ namespace Incident_Reporting.Controllers
                                 throw new ShowMessageException(e.InnerException.Message);
                             }
                         }
+                       
                     }
+                    
                 }
                 else
                 { 
@@ -251,6 +287,16 @@ namespace Incident_Reporting.Controllers
         public IActionResult Success()
         {
             return View("Success");
+        }
+
+        private static MemoryStream GenerateMemoryStreamFromString(string s)
+        {
+            var stream = new MemoryStream();
+            var writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
         }
     }
 }

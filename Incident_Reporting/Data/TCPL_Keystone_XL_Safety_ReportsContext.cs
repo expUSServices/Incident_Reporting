@@ -62,7 +62,7 @@ namespace Incident_Reporting.Data
 
                 entity.Property(e => e.FileExtension)
                     .IsRequired()
-                    .HasMaxLength(5)
+                  //  .HasMaxLength(5)
                     .HasColumnName("fileExtension")
                     .HasComment("The extension of the file, without the 'dot'. Normally 3 characters.");
 

@@ -14,7 +14,7 @@ namespace Incident_Reporting.Extensions
             // per request- scoped
 
             services.AddScoped<ITCPL_Keystone_XL_Safety_ReportsContext, TCPL_Keystone_XL_Safety_ReportsContext>();
-            services.AddScoped<IDataService, IncidentDataService>();
+            services.AddScoped<IDataService<IncidentDataVM>, IncidentDataService>();
             // transient
 
             return services;

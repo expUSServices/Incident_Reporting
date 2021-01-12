@@ -39,5 +39,9 @@ namespace Incident_Reporting.Models
         public string Description { get; set; }
         public string ActionTaken { get; set; }
         public DateTime DateTimeReportedUtc { get; set; }
+
+        public int AttachId { get; set; }
+        public string FileLocation { get; set; }
+        public byte[] FileExtension { get; set; }
     }
 }

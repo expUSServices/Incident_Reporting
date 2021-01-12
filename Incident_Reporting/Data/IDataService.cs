@@ -28,8 +28,9 @@ namespace Incident_Reporting.Data
     public interface IDataService<TModel> : IDataService
         where TModel : class
     {
-        IEnumerable<TModel> Read(bool showDeleted = false);
+       // IEnumerable<TModel> Read(bool showDeleted = false);
         void Create(TModel model);
+        void CreateAttachment(TModel model);
         void Update(TModel model);
         void Destroy(TModel model);
     }

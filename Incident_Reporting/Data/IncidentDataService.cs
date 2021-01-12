@@ -10,7 +10,7 @@ using System;
 namespace Incident_Reporting.Data
 {
   
-    public class IncidentDataService :  IDataService
+    public class IncidentDataService :  IDataService<IncidentDataVM>
     {
         private readonly static object userLock = new object();
 
@@ -38,75 +38,58 @@ namespace Incident_Reporting.Data
 
         public void Create(IncidentDataVM model)
         {
-            //var uploadPageDbContext = _dbContext as Upload_PageContext;
-            //var user = FindUser();
-            //var dateTimeUtcNow = DateTime.UtcNow;
+            var incidentDC = _dbContext as TCPL_Keystone_XL_Safety_ReportsContext;
+           
+            var newincidentReport = new IncidentReport()
+            {
+                IncidentTypeId = model.IncidentTypeId,
+                UserId = model.UserId,
+                ProjectId = model.ProjectId,
+                DateTimeIncidentUtc = model.DateTimeIncidentUtc,
+                ReporterCompanyName = model.ReporterCompanyName,
+                LocationClassId = model.LocationId,
+                Description = model.Description,
+                ActionTaken = model.ActionTaken,
+                DateTimeReportedUtc = DateTime.UtcNow
+            };
+            incidentDC.IncidentReports.Add(newincidentReport);
+            incidentDC.Entry(newincidentReport).State = EntityState.Added;
+            incidentDC.SaveChanges();
+           
+            model.Id = (int)newincidentReport.Id;
 
-            //var entity = new File();
-
-            //entity.FileName = model.FileName;
-            //entity.FileSize = model.FileSize;
-            //// Calculated
-            //entity.CreateUserId = user.Id;
-            //entity.CreatedDateTime = entity.ModifiedDateTime = dateTimeUtcNow;
-            //// One-to-one
-            //{
-            //    var property = new FileProperty()
-            //    {
-            //        File = entity,
-            //        RowCount = model.RowCount,
-            //        Comment = model.Comment
-            //    };
-            //    uploadPageDbContext.FileProperty.Add(property);
-            //    uploadPageDbContext.Entry(property).State = EntityState.Added;
-            //}
-            //// One-to-many
-            //{
-            //    var currentIndex = 0d;
-            //    while (currentIndex < model.FileContent.Length)
-            //    {
-            //        var endIndex = currentIndex + Global.MaxContentByteLength - 1;
-            //        endIndex = endIndex > model.FileContent.Length - 1 ? model.FileContent.Length - 1 : endIndex;
-            //        var content = new FileContent()
-            //        {
-            //            File = entity,
-            //            Content = model.FileContent.SubArray(currentIndex, endIndex)
-            //        };
-            //        uploadPageDbContext.FileContent.Add(content);
-            //        uploadPageDbContext.Entry(content).State = EntityState.Added;
-            //        currentIndex += Global.MaxContentByteLength;
-            //    }
-            //}
-
-            //uploadPageDbContext.File.Add(entity);
-            //uploadPageDbContext.Entry(entity).State = EntityState.Added;
-
-            //uploadPageDbContext.SaveChanges();
-
-
-            ////if (templateName == "GetList")
-            ////{
-            ////    MocListViewModel model = _emailDataService.GetMocList() as MocListViewModel;
-
-            ////    msg.Subject = "MOC List";
-            ////    var toAddress = model.ToAddress;
-            ////    msg.To.Add(toAddress);
-            ////    string view = "~/EmailTemplates/" + templateName;
-            ////    var htmlBody = await RenderPartialViewToString($"{view}.cshtml", model);
-
-            ////    msg.Body = htmlBody;
-            ////    msg.IsBodyHtml = true;
-
-            ////    using (var smtp = new SmtpClient(email_smtp))
-            ////    {
-            ////        smtp.UseDefaultCredentials = true;
-            ////        smtp.EnableSsl = true;
-            ////        await smtp.SendMailAsync(msg);
-            ////    }
-            ////}
-            //model.ID = (int)entity.Id;
+            var incidentToState = new IncidentToStateProvince()
+            {
+                IncidentId = model.Id,
+                StateProvinceId = model.StateId
+            };
+            incidentDC.IncidentToStateProvinces.Add(incidentToState);
+            incidentDC.Entry(incidentToState).State = EntityState.Added;
+            incidentDC.SaveChanges();
         }
+        public void CreateAttachment(IncidentDataVM model)
+        {
+            var incidentDC = _dbContext as TCPL_Keystone_XL_Safety_ReportsContext;
 
+            var attachment = new Attachment()
+            {
+                FileLocation = model.FileLocation,
+                FileExtension = model.FileExtension
+            };
+            incidentDC.Attachments.Add(attachment);
+            incidentDC.Entry(attachment).State = EntityState.Added;
+            incidentDC.SaveChanges();
+            int attachmentId = attachment.Id;
+
+            var incidentToAttach = new IncidentToAttachment()
+            {
+                IncidentId = model.Id,
+                AttachmentId = attachmentId
+            };
+            incidentDC.IncidentToAttachments.Add(incidentToAttach);
+            incidentDC.Entry(incidentToAttach).State = EntityState.Added;
+            incidentDC.SaveChanges();
+        }
         public void Update(IncidentDataVM model)
         {
             //var uploadPageDbContext = _dbContext as Upload_PageContext;
