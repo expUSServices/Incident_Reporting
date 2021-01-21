@@ -37,8 +37,8 @@ namespace Incident_Reporting.Controllers
              _environment = environment;
         }
 
-
-     
+        [HttpGet]
+        [Authorize(Policy = "Registered")]
         public IActionResult Index()
         {
             try

@@ -40,17 +40,44 @@ namespace Incident_Reporting
             services.AddMvc(options => options.EnableEndpointRouting = false).SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                    .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
-            services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
-                .AddAzureAD(options => Configuration.Bind("AzureAd", options));
+            //services.AddAuthentication(AzureADDefaults.AuthenticationScheme)
+            //    .AddAzureAD(options => Configuration.Bind("AzureAd", options));
 
-            services.AddControllersWithViews(options =>
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                options.Filters.Add(new AuthorizeFilter(policy));
-            });
+            //fusion auth - rupa to add
+
+            services.AddAuthorization(options =>
+                options.AddPolicy("Registered",
+            policy => policy.RequireClaim("applicationId", Configuration["Incident_Reporting:ClientId"])));
             services.AddRazorPages();
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "cookie";
+                options.DefaultChallengeScheme = "oidc";
+            })
+                .AddCookie("cookie", options =>
+                {
+                    options.Cookie.Name = Configuration["Incident_Reporting:CookieName"];
+                    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
+
+                })
+                .AddOpenIdConnect("oidc", options =>
+                {
+                    options.Authority = Configuration["Incident_Reporting:Authority"];
+                    options.ClientId = Configuration["Incident_Reporting:ClientId"];
+                    options.ClientSecret = Configuration["Incident_Reporting:ClientSecret"];
+                    options.ResponseType = "code";
+                    options.RequireHttpsMetadata = false;
+                });
+            //fusion auth
+
+            //services.AddControllersWithViews(options =>
+            //{
+            //    var policy = new AuthorizationPolicyBuilder()
+            //        .RequireAuthenticatedUser()
+            //        .Build();
+            //    options.Filters.Add(new AuthorizeFilter(policy));
+            //});
+            //services.AddRazorPages();
             //services.AddScoped<IDataService<IncidentDataVM>, baseda>();
            
         }
