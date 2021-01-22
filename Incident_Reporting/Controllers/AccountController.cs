@@ -38,13 +38,13 @@ namespace Incident_Reporting.Controllers
 
             await HttpContext.SignOutAsync();
             SignOut("cookie", "oidc");
-            var host = _configuration["GIS_Upload_Page:Authority"];
-            var cookieName = _configuration["GIS_Upload_Page:CookieName"];
+            var host = _configuration["Incident_Reporting:Authority"];
+            var cookieName = _configuration["Incident_Reporting:CookieName"];
 
             var domain = Request.Scheme + "://" + Request.Host.Value;
-            Response.Cookies.Delete(cookieName, new CookieOptions { Domain = domain.ToString() });
+           Response.Cookies.Delete(cookieName, new CookieOptions { Domain = domain.ToString() });
 
-            var clientId = _configuration["GIS_Upload_Page:ClientId"];
+            var clientId = _configuration["Incident_Reporting:ClientId"];
             var url = host + "/oauth2/logout?client_id=" + clientId;
 
             return Redirect(url);
@@ -55,7 +55,7 @@ namespace Incident_Reporting.Controllers
             var authType = Request.Cookies["authenticationType"];
             if (authType == "OPENID_CONNECT")
             {
-                var tenantId = _configuration["GIS_Upload_Page:TenantId"];
+                var tenantId = _configuration["Incident_Reporting:TenantId"];
                 var url = "https://login.microsoftonline.com/" + tenantId + "/oauth2/v2.0/logout";
                 return Redirect(url);
             }

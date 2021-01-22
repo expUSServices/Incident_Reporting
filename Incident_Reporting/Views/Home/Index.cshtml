@@ -1,4 +1,5 @@
-﻿@model IncidentDataVM
+﻿@using Microsoft.AspNetCore.Authentication
+@model IncidentDataVM
 
 @using Kendo.Mvc.UI
 @using System.Globalization
@@ -17,47 +18,72 @@
     var messages = new Dictionary<string, string>() { { "custom", "Please choose another Start Time." } };
     var rules = new Dictionary<string, string>() { { "custom", "customFunction" } };
 }
-<div class="shadow-lg">
- 
-    <div class="demo-section k-content" style="padding:20px">
-        <div id="validation-summary">
-        </div>
 
-        <form id="ticketsForm" class="k-form k-form-vertical" kendo-validator="true" kendo-messages="messages" kendo-rules="rules" asp-action="Submit">
+@*@if (User.Identity.IsAuthenticated)
+{
+<li class="nav-item">
+    @foreach (var claim in User.Claims)
+        {
 
-            <ul class="border" style="padding:10px">
-                @*<p class="border" style="padding:10px">*@
-                <li class="k-form-field">
+           // if ((@claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress") &&  (@claim.Value== "guest@exp.com"))
+           // {
+         <span style="font-weight:600">@claim.Type</span>
+         <span style="font-weight:600">@claim.Value</span>
+           // }
+        }
+</li>
+}*@
+    <div class="shadow-lg">
 
-                    <b> Near Hit:</b>
-                    an unplanned event which in slightly different circumstances could have resulted in injury or damage to property or the environment (e.g. slammed on the brakes to avoid hitting the deer, slipped on ice but did not fall).
-                </li>
+        <div class="demo-section k-content" style="padding:20px">
+            <div id="validation-summary">
+            </div>
 
-                <li class="k-form-field">
+            <form id="ticketsForm" class="k-form k-form-vertical" kendo-validator="true" kendo-messages="messages" kendo-rules="rules" asp-action="Submit">
 
-                    <b> Safe Observation/Act:</b>
-                    a person performing an action to generate awareness of an unsafe condition or control/remove a health, safety, environmental or security unsafe condition (i.e. hazard or risk); it may be self-reported or reported by a witness of the Safe Act (e.g. observed worker mopping up a wet area on the tile floor to reduce slipping potential, tied up my shoe laces when I noticed they had become undone).
-                </li>
+                <ul class="border" style="padding:10px">
+                    @*<p class="border" style="padding:10px">*@
+                    <li class="k-form-field">
 
-                <li class="k-form-field">
+                        <b> Near Hit:</b>
+                        an unplanned event which in slightly different circumstances could have resulted in injury or damage to property or the environment (e.g. slammed on the brakes to avoid hitting the deer, slipped on ice but did not fall).
+                    </li>
 
-                    <b>  Incident Notification:</b>
-                    all other types of incidents (e.g. first aid incidents where professional medical assistance was not necessary, vehicle damage, medical assistance). You will be contacted by a Safety Representative to fill out an Incident form for this type of classification.&nbsp;
+                    <li class="k-form-field">
 
-                </li>
+                        <b> Safe Observation/Act:</b>
+                        a person performing an action to generate awareness of an unsafe condition or control/remove a health, safety, environmental or security unsafe condition (i.e. hazard or risk); it may be self-reported or reported by a witness of the Safe Act (e.g. observed worker mopping up a wet area on the tile floor to reduce slipping potential, tied up my shoe laces when I noticed they had become undone).
+                    </li>
 
-                <li class="k-form-field">
+                    <li class="k-form-field">
 
-                    <b> Safety 24/7:</b>
-                    same as any of the reports above, but happens during non-working hours.
+                        <b>  Incident Notification:</b>
+                        all other types of incidents (e.g. first aid incidents where professional medical assistance was not necessary, vehicle damage, medical assistance). You will be contacted by a Safety Representative to fill out an Incident form for this type of classification.&nbsp;
+
+                    </li>
+
+                    <li class="k-form-field">
+
+                        <b> Safety 24/7:</b>
+                        same as any of the reports above, but happens during non-working hours.
                     </li>
                 </ul>
                 @*</p>*@
-             <ul class="k-form-group">
-                    <li class="k-form-field">
-                        <label for="ClientId" class="k-form-label">Select Client</label>
-                        <span class="k-form-field-wrap">
-                            @(Html.Kendo().DropDownList()
+            <ul class="k-form-group">
+
+                @if (User.Identity.IsAuthenticated)
+                {
+
+                    @foreach (var claim in User.Claims)
+                    {
+
+                        if ((@claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress") && (@claim.Value != "guest1@exp.com"))
+                        {
+
+                            <li class="k-form-field">
+                                <label for="ClientId" class="k-form-label">Select Client</label>
+                                <span class="k-form-field-wrap">
+                                    @(Html.Kendo().DropDownList()
                                     .Name("ClientId")
                                     .OptionLabel("Select Client...")
                                     .DataValueField("id")
@@ -71,12 +97,19 @@
                                           });
                                       })
     )
-                        </span>
-                    </li>
-                    <li class="k-form-field">
-                        <label for="fullname" class="k-form-label">Select Incident Type</label>
-                        <span class="k-form-field-wrap">
-                            @(Html.Kendo().DropDownList()
+                                </span>
+                            </li>
+                        }
+                    }
+
+                }
+
+
+
+                <li class="k-form-field">
+                    <label for="fullname" class="k-form-label">Select Incident Type</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().DropDownList()
                                   .Name("IncidentTypeId")
                                   .OptionLabel("Select Incident type...")
                                   .DataValueField("id")
@@ -90,23 +123,23 @@
                                   })
                                   .HtmlAttributes(new { style = "width: 100%" })
                                 )
-                        </span>
-                    </li>
-                    <li class="k-form-field">
-                        <label for="fullname" class="k-form-label">Select Incident Date and Time </label>
-                        <span class="k-form-field-wrap">
-                            @(Html.Kendo().DateTimePicker()
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="fullname" class="k-form-label">Select Incident Date and Time </label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().DateTimePicker()
                               .Name("DateTimeIncidentUtc")
                               .Value(DateTime.UtcNow)
                               .HtmlAttributes(new { required = "required", style = "width: 100%" })
     )
-                        </span>
-                    </li>
-                    <li class="k-form-field">
-                        <label for="fullname" class="k-form-label">Select Project Number </label>
-                        <span class="k-form-field-wrap">
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="fullname" class="k-form-label">Select Project Number </label>
+                    <span class="k-form-field-wrap">
 
-                            @(Html.Kendo().DropDownList()
+                        @(Html.Kendo().DropDownList()
                         .Name("ProjectId")
                         .HtmlAttributes(new { required = "required", style = "width: 100%", validationmessage = "Select Project" })
                         .OptionLabel("Select Project...")
@@ -125,12 +158,12 @@
                          .AutoBind(false)
                          .CascadeFrom("ClientId")
                         )
-                        </span>
-                    </li>
-                    <li class="k-form-field">
-                        <label for="fullname" class="k-form-label">Select Country </label>
-                        <span class="k-form-field-wrap">
-                            @(Html.Kendo().DropDownList()
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="fullname" class="k-form-label">Select Country </label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().DropDownList()
                        .Name("CountryId")
                        .OptionLabel("Select Country...")
                        .DataValueField("id")
@@ -145,12 +178,12 @@
                       })
                       .HtmlAttributes(new { style = "width: 100%" ,required = "required", validationmessage = "Select Country" })
     )
-                        </span>
-                    </li>
-                    <li class="k-form-field">
-                        <label for="fullname" class="k-form-label">Select State/Province </label>
-                        <span class="k-form-field-wrap">
-                            @(Html.Kendo().DropDownList()
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="fullname" class="k-form-label">Select State/Province </label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().DropDownList()
                         .Name("StateId")
                         .HtmlAttributes(new { required = "required", style = "width: 100%" , validationmessage = "Select State/Province" })
                         .OptionLabel("Select State...")
@@ -170,100 +203,100 @@
                         .AutoBind(false)
                         .CascadeFrom("CountryId")
                     )
-                        </span>
-                    </li>
-                    <li class="k-form-field">
-                        <label for="iLocation">Location</label>
-                        <ul class="fieldlist">
-                            <li>
-                                @(Html.Kendo().RadioButton().Name("Field").Value("1").Checked(true).HtmlAttributes(new { @name = "LocationId" }).Label("Field"))
-                            </li>
-                            <li>
-                                @(Html.Kendo().RadioButton().Name("Office").Value("2").HtmlAttributes(new { @name = "LocationId" }).Label("Office"))
-                            </li>
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="iLocation">Location</label>
+                    <ul class="fieldlist">
+                        <li>
+                            @(Html.Kendo().RadioButton().Name("Field").Value("1").Checked(true).HtmlAttributes(new { @name = "LocationId" }).Label("Field"))
+                        </li>
+                        <li>
+                            @(Html.Kendo().RadioButton().Name("Office").Value("2").HtmlAttributes(new { @name = "LocationId" }).Label("Office"))
+                        </li>
 
-                        </ul>
-                    </li>
-                    <li class="k-form-field">
-                        <label for="employee" class="k-form-label">Employee Name</label>
-                        <span class="k-form-field-wrap">
-                            @(Html.Kendo()
+                    </ul>
+                </li>
+                <li class="k-form-field">
+                    <label for="employee" class="k-form-label">Employee Name</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo()
                         .TextBox()
                         .Name("employee")
                         .Value(@ViewBag.Name)
                         .HtmlAttributes(new {  required = "required", validationmessage = "Enter Employee Name" })
                     )
-                        </span>
-                    </li>
-                    <li class="k-form-field">
-                        <label for="email" class="k-form-label">Employee Email</label>
-                        <span class="k-form-field-wrap">
-                            @(Html.Kendo()
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="email" class="k-form-label">Employee Email</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo()
                         .TextBox()
                         .Name("email")
                         .Value(@ViewBag.Email)
                         .HtmlAttributes(new {  required = "required", validationmessage = "Enter Employee Email" })
                     )
-                        </span>
-                    </li>
-                    <li class="k-form-field">
-                        <label for="company" class="k-form-label">Company Name</label>
-                        <span class="k-form-field-wrap">
-                            @(Html.Kendo()
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="company" class="k-form-label">Company Name</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo()
                         .TextBox()
                         .Name("ReporterCompanyName")
                         .HtmlAttributes(new {  required = "required", validationmessage = "Enter Company Name" })
                     )
-                        </span>
-                    </li>
-                    <li class="k-form-field">
-                        <label for="description" class="k-form-label">Incident Description</label>
-                        <span class="k-form-field-wrap">
-                            @(Html.Kendo()
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="description" class="k-form-label">Incident Description</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo()
                         .TextArea()
                         .Name("Description")
                         .Rows(5)
                         .MaxLength(200)
                         .HtmlAttributes(new { placeholder = "Enter Incident Description",required = "required", validationmessage = "Enter Incident Description" })
                     )
-                        </span>
-                    </li>
-                    <li class="k-form-field">
-                        <label for="action" class="k-form-label">Action Taken</label>
-                        <span class="k-form-field-wrap">
-                            @(Html.Kendo()
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="action" class="k-form-label">Action Taken</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo()
                         .TextArea()
                        .Name("ActionTaken")
                         .Rows(10)
                         .MaxLength(200)
                         .HtmlAttributes(new { placeholder = "Enter Action Taken",  required = "required", validationmessage = "Enter Action Taken" })
                     )
-                        </span>
-                    </li>
-                    <li class="k-form-field">
-                        <label for="action" class="k-form-label">
-                            Upload Docs
-                        </label>
-                        <span class="k-form-field-wrap">
-                            @(Html.Kendo().Upload()
+                    </span>
+                </li>
+                <li class="k-form-field">
+                    <label for="action" class="k-form-label">
+                        Upload Docs
+                    </label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().Upload()
                         .Name("files").Multiple(false)
                         .HtmlAttributes(new { @style = "width:100%" })
                         .Multiple(true)
                         //.HtmlAttributes(new { accept = ".doc, .docx, .pdf, .ppt, .pptx " })
                         )
-                        </span>
-                    </li>
-                    <li class="k-form-buttons">
-                        <button type="submit" id="submitBtn" class="k-button k-primary">Submit</button>
+                    </span>
+                </li>
+                <li class="k-form-buttons">
+                    <button type="submit" id="submitBtn" class="k-button k-primary">Submit</button>
 
-                    </li>
-                </ul>
-        </form>
+                </li>
+            </ul>
+            </form>
+        </div>
+
     </div>
-
-</div>
-@section scripts {
-    <script>
+    @section scripts {
+        <script>
         function filterStates() {
             return {
                 CountryId: $("#CountryId").val()
@@ -278,7 +311,7 @@
 
 
         BlankTemplate = function () {
-         
+
             var formData =
             {
                 ClientId: $("#client").val(),
@@ -297,7 +330,7 @@
                 url: "Home/Submit",
                 data: formData,
                 type: "POST",
-            
+
                 success: function (response) {
                     alert(response);
                     alert(response.success);
@@ -318,20 +351,20 @@
 
             return true;
         }
-    </script>
-}
-<style>
-    .k-readonly {
-        color: gray;
+        </script>
     }
-
-    .fieldlist {
-        margin: 0 0 -1em;
-        padding: 0;
-    }
-
-        .fieldlist li {
-            list-style: none;
-            padding-bottom: 1em;
+    <style>
+        .k-readonly {
+            color: gray;
         }
-</style>
+
+        .fieldlist {
+            margin: 0 0 -1em;
+            padding: 0;
+        }
+
+            .fieldlist li {
+                list-style: none;
+                padding-bottom: 1em;
+            }
+    </style>

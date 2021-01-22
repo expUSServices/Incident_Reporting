@@ -84,7 +84,6 @@ namespace Incident_Reporting.Extensions
                 {
                     foreach (var claim in user.Claims.ToList())
                     {
-                        //if (claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")
                         if (claim.Type == "firstName")
                         {
                             firstName = claim.Value;
@@ -108,10 +107,23 @@ namespace Incident_Reporting.Extensions
                 {
                     foreach (var claim in user.Claims.ToList())
                     {
-                       // if (claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname")
-                            if (claim.Type == "lastName")
-                            {
+                        
+                        if (claim.Type == "lastName")
+                        {
                             lastName = claim.Value;
+                        }
+
+                       else if (claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/lastName")
+                        {
+                            lastName = claim.Value;
+                        }
+                        else if (claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname")
+                        {
+                            lastName = claim.Value;
+                        }
+                        else 
+                        {
+                            lastName = "hghghj";
                         }
                     }
                 }
