@@ -19,20 +19,7 @@
     var rules = new Dictionary<string, string>() { { "custom", "customFunction" } };
 }
 
-@*@if (User.Identity.IsAuthenticated)
-{
-<li class="nav-item">
-    @foreach (var claim in User.Claims)
-        {
 
-           // if ((@claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress") &&  (@claim.Value== "guest@exp.com"))
-           // {
-         <span style="font-weight:600">@claim.Type</span>
-         <span style="font-weight:600">@claim.Value</span>
-           // }
-        }
-</li>
-}*@
     <div class="shadow-lg">
 
         <div class="demo-section k-content" style="padding:20px">
@@ -74,16 +61,18 @@
                 @if (User.Identity.IsAuthenticated)
                 {
 
-                    @foreach (var claim in User.Claims)
+                @foreach (var claim in User.Claims)
                     {
 
-                        if ((@claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress") && (@claim.Value != "guest1@exp.com"))
+
+                        if (@claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")
+                             if ((@claim.Value == "tc_guest@tcenergy.com"))
                         {
 
-                            <li class="k-form-field">
-                                <label for="ClientId" class="k-form-label">Select Client</label>
-                                <span class="k-form-field-wrap">
-                                    @(Html.Kendo().DropDownList()
+                <li class="k-form-field">
+                    <label for="ClientId" class="k-form-label">Select Client</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().DropDownList()
                                     .Name("ClientId")
                                     .OptionLabel("Select Client...")
                                     .DataValueField("id")
@@ -97,8 +86,56 @@
                                           });
                                       })
     )
-                                </span>
-                            </li>
+                    </span>
+                </li>
+                        }
+                    if (@claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")
+                             if ((@claim.Value == "et_guest@energytransfer.com"))
+                        {
+
+                <li class="k-form-field">
+                    <label for="ClientId" class="k-form-label">Select Client</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().DropDownList()
+                                    .Name("ClientId")
+                                    .OptionLabel("Select Client...")
+                                    .DataValueField("id")
+                                    .HtmlAttributes(new { required = "required" })
+                                    .DataTextField("clientCompanyName")
+                                    .DataSource(source =>
+                                      {
+                                          source.Read(read =>
+                                          {
+                                              read.Action("GetClient", "Home");
+                                          });
+                                      })
+    )
+                    </span>
+                </li>
+                        }
+                if (@claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")
+                             if ((@claim.Value != "tc_guest@tcenergy.com") && (@claim.Value != "et_guest@energytransfer.com"))
+                        {
+
+                <li class="k-form-field">
+                    <label for="ClientId" class="k-form-label">Select Client</label>
+                    <span class="k-form-field-wrap">
+                        @(Html.Kendo().DropDownList()
+                                    .Name("ClientId")
+                                    .OptionLabel("Select Client...")
+                                    .DataValueField("id")
+                                    .HtmlAttributes(new { required = "required" })
+                                    .DataTextField("clientCompanyName")
+                                    .DataSource(source =>
+                                      {
+                                          source.Read(read =>
+                                          {
+                                              read.Action("GetClient", "Home");
+                                          });
+                                      })
+    )
+                    </span>
+                </li>
                         }
                     }
 
@@ -126,7 +163,7 @@
                     </span>
                 </li>
                 <li class="k-form-field">
-                    <label for="fullname" class="k-form-label">Select Incident Date and Time </label>
+                    <label for="DateTimeIncidentUtc" class="k-form-label">Select Incident Date and Time </label>
                     <span class="k-form-field-wrap">
                         @(Html.Kendo().DateTimePicker()
                               .Name("DateTimeIncidentUtc")
@@ -136,7 +173,28 @@
                     </span>
                 </li>
                 <li class="k-form-field">
-                    <label for="fullname" class="k-form-label">Select Project Number </label>
+                    <label for="iTimeZone">Time Zone</label>
+              
+
+                <span class="k-form-field-wrap">
+                    @(Html.Kendo().DropDownList()
+                              .Name("TimeZone")
+                              .BindTo(new List<string>
+                                    () {
+                                    "Pacific Standard Time",
+                                    "Mountain Standard Time",
+                                    "Central Standard Time",
+                                    "Eastern Standard Time"
+                                    })
+                              .HtmlAttributes(new { required = "required", style = "width: 100%" })
+                       )
+                           
+                </span>
+                </li>
+
+          
+                <li class="k-form-field">
+                    <label for="ProjectId" class="k-form-label">Select Project Number </label>
                     <span class="k-form-field-wrap">
 
                         @(Html.Kendo().DropDownList()
@@ -160,6 +218,7 @@
                         )
                     </span>
                 </li>
+
                 <li class="k-form-field">
                     <label for="fullname" class="k-form-label">Select Country </label>
                     <span class="k-form-field-wrap">

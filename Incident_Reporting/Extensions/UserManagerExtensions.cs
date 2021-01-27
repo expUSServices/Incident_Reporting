@@ -76,6 +76,7 @@ namespace Incident_Reporting.Extensions
                 }
                     //userName = user.FindFirst(user.Claims.GetType['fullName'].Name)?.Value;
             }
+          
 
             if (string.IsNullOrEmpty(firstName))
             {
@@ -88,6 +89,10 @@ namespace Incident_Reporting.Extensions
                         {
                             firstName = claim.Value;
                         }
+                        if (claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/firstName")
+                        {
+                            firstName = claim.Value;
+                        }
                         else if(claim.Type == "preferred_username")
                         {
                             firstName = claim.Value;
@@ -96,8 +101,28 @@ namespace Incident_Reporting.Extensions
                         {
                             firstName = claim.Value;
                         }
+                        else if (claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/given_name")
+                        {
+                            firstName = claim.Value;
+                        }
+                        else if (claim.Type == "given_name")
+                        {
+                            firstName = claim.Value;
+                        }
+                        else if (claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/firstName")
+                        {
+                            firstName = claim.Value;
+                        }
+                        //else
+                        //{
+                        //    firstName = "no first name";
+                        //}
                     }
+
+                  
                 }
+
+               
                 //userName = user.FindFirst(user.Claims.GetType['fullName'].Name)?.Value;
             }
             if (string.IsNullOrEmpty(lastName))
@@ -121,15 +146,23 @@ namespace Incident_Reporting.Extensions
                         {
                             lastName = claim.Value;
                         }
-                        else 
+                        else if (claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/family_name")
                         {
-                            lastName = "hghghj";
+                            lastName = claim.Value;
                         }
+                        //else 
+                        //{
+                        //    lastName = "no last name";
+                        //}
                     }
                 }
                 //userName = user.FindFirst(user.Claims.GetType['fullName'].Name)?.Value;
             }
             return new { UserName = userName, FullName = fullName, UserEmail = userEmail,FirstName= firstName,LastName= lastName };
         }
+        //public static DateTime ToTimeZoneTime(this DateTime time, TimeZoneInfo tzi)
+        //{
+        //    return TimeZoneInfo.ConvertTimeFromUtc(time, tzi);
+        //}
     }
 }

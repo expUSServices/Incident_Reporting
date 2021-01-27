@@ -326,13 +326,13 @@ namespace Incident_Reporting.Data
                     .HasColumnName("email");
 
                 entity.Property(e => e.FirstName)
-                    .IsRequired()
+                   // .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("firstName");
 
                 entity.Property(e => e.LastName)
-                    .IsRequired()
+                  //  .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false)
                     .HasColumnName("lastName");

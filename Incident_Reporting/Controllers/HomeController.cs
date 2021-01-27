@@ -49,7 +49,7 @@ namespace Incident_Reporting.Controllers
                 ViewBag.FirstName = user.FirstName;
                 ViewBag.LastName = user.LastName;
                 ViewBag.Email = user.Email;
-              
+               
                 return View();
             }
             catch(Exception ex)
@@ -75,11 +75,32 @@ namespace Incident_Reporting.Controllers
         }
         public JsonResult GetClient(string text)
         {
+
+           
             try
             {
                 using (TCPL_Keystone_XL_Safety_ReportsContext clientDC = new TCPL_Keystone_XL_Safety_ReportsContext()) 
                 {
-                    var client = clientDC.Clients.ToList();
+                    var client = clientDC.Clients.AsQueryable();
+                    foreach (var claim in User.Claims)
+                    {
+                        if (claim.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")
+                        {
+                            if (claim.Value == "tc_guest@tcenergy.com")
+                            {
+                                client = client.Where(p => p.Id == 1);
+                                
+                            }
+                            else if (claim.Value == "et_guest@energytransfer.com")
+                            {
+                                client = client.Where(p => p.Id == 2);
+                            }
+                            else if (claim.Value != "tc_guest@tcenergy.com" || claim.Value != "et_guest@energytransfer.com")
+                            {
+                                return Json(client.Select(c => new { id = c.Id, clientCompanyName = c.ClientCompanyName }).ToList());
+                            }
+                        }
+                    }
                     return Json(client.Select(c => new { id = c.Id, clientCompanyName = c.ClientCompanyName }).ToList());
                 }
             }
@@ -149,11 +170,32 @@ namespace Incident_Reporting.Controllers
                 return null;
             }
         }
+        public JsonResult GetProjects_new(int? ClientId)
+        {
+            try
+            {
+                using (TCPL_Keystone_XL_Safety_ReportsContext projectDC = new TCPL_Keystone_XL_Safety_ReportsContext())
 
+                {
+                    var project = projectDC.Projects.AsQueryable();
+                    if (ClientId != null)
+                    {
+                        project = project.Where(p => p.ClientId == 1);
+                    }
+
+                    return Json(project.Select(p => new { id = p.Id, projectName = p.ProjectName }).ToList());
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         public IActionResult Privacy()
         {
             return View();
         }
+       
         [HttpPost]
         public IActionResult Submit(IncidentDataVM incidentData, IList<IFormFile> files)
         {
@@ -185,15 +227,18 @@ namespace Incident_Reporting.Controllers
                         }
 
                     }
-              
-                    var dateTimeUtcNow = DateTime.UtcNow;
+
+                 
+                    TimeZoneInfo Zone = TimeZoneInfo.FindSystemTimeZoneById(incidentData.TimeZone);
+                    DateTime TimeZone_utc = TimeZoneInfo.ConvertTimeToUtc(Convert.ToDateTime(incidentData.DateTimeIncidentUtc), Zone);
+                   
 
                     var newincidentReport = new IncidentDataVM()
                     {
                         IncidentTypeId = incidentData.IncidentTypeId,
                         UserId = loggedinuserId,
                         ProjectId = incidentData.ProjectId,
-                        DateTimeIncidentUtc = incidentData.DateTimeIncidentUtc,
+                        DateTimeIncidentUtc = TimeZone_utc,
                         ReporterCompanyName = incidentData.ReporterCompanyName,
                         LocationId = incidentData.LocationId,
                         Description = incidentData.Description,

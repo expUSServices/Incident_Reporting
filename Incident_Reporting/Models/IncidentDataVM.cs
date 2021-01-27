@@ -32,6 +32,8 @@ namespace Incident_Reporting.Models
         public int ProjectId { get; set; }
         [Required]
         public int LocationId { get; set; }
+
+        public string TimeZone { get; set; }
         [Required]
         public DateTime? DateTimeIncidentUtc { get; set; }
         public string ReporterCompanyName { get; set; }
