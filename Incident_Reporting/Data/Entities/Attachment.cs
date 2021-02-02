@@ -14,7 +14,8 @@ namespace Incident_Reporting.Data.Entities
 
         public int Id { get; set; }
         public string FileLocation { get; set; }
-        public byte[] FileExtension { get; set; }
+        public string FileExtension { get; set; }
+
 
         public virtual ICollection<IncidentToAttachment> IncidentToAttachments { get; set; }
     }

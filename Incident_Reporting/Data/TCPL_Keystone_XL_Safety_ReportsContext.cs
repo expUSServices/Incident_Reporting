@@ -60,9 +60,10 @@ namespace Incident_Reporting.Data
 
                 entity.Property(e => e.Id).HasColumnName("id");
 
+
                 entity.Property(e => e.FileExtension)
-                    .IsRequired()
-                  //  .HasMaxLength(5)
+                    .HasMaxLength(5)
+                    .IsUnicode(false)
                     .HasColumnName("fileExtension")
                     .HasComment("The extension of the file, without the 'dot'. Normally 3 characters.");
 
@@ -129,13 +130,13 @@ namespace Incident_Reporting.Data
                     .IsUnicode(false)
                     .HasColumnName("actionTaken");
 
-                entity.Property(e => e.DateTimeIncidentUtc)
+                entity.Property(e => e.DateTimeIncident)
                     .HasColumnType("datetime")
-                    .HasColumnName("dateTimeIncidentUtc");
+                    .HasColumnName("dateTimeIncident");
 
-                entity.Property(e => e.DateTimeReportedUtc)
+                entity.Property(e => e.DateTimeReportSubmittedUtc)
                     .HasColumnType("datetime")
-                    .HasColumnName("dateTimeReportedUtc");
+                    .HasColumnName("dateTimeReportSubmittedUtc");
 
                 entity.Property(e => e.Description)
                     .IsUnicode(false)
@@ -148,6 +149,7 @@ namespace Incident_Reporting.Data
                     .HasColumnName("location");
 
                 entity.Property(e => e.ProjectId).HasColumnName("projectId");
+                entity.Property(e => e.StateProvinceId).HasColumnName("stateProvinceId");
 
                 entity.Property(e => e.ReporterCompanyName)
                     .HasMaxLength(255)
@@ -167,6 +169,11 @@ namespace Incident_Reporting.Data
                     .HasForeignKey(d => d.ProjectId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_IncidentReport_Project");
+
+                entity.HasOne(d => d.StateProvince)
+                      .WithMany(p => p.IncidentReports)
+                      .HasForeignKey(d => d.StateProvinceId)
+                      .HasConstraintName("FK_Incident_Report_State_Province");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.IncidentReports)

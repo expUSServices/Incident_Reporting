@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Collections.Generic;
 using Incident_Reporting.Models;
 using Incident_Reporting.Data.Entities;
+using Microsoft.AspNetCore.Http;
 
 namespace Incident_Reporting.Data
 {
@@ -30,7 +31,7 @@ namespace Incident_Reporting.Data
     {
        // IEnumerable<TModel> Read(bool showDeleted = false);
         void Create(TModel model);
-        void CreateAttachment(TModel model);
+        void CreateAttachment(TModel model,IFormFile file);
         void Update(TModel model);
         void Destroy(TModel model);
     }

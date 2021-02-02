@@ -228,23 +228,25 @@ namespace Incident_Reporting.Controllers
 
                     }
 
+                    //timezone code -- to be implemented later
                  
-                    TimeZoneInfo Zone = TimeZoneInfo.FindSystemTimeZoneById(incidentData.TimeZone);
-                    DateTime TimeZone_utc = TimeZoneInfo.ConvertTimeToUtc(Convert.ToDateTime(incidentData.DateTimeIncidentUtc), Zone);
-                   
+                    //TimeZoneInfo Zone = TimeZoneInfo.FindSystemTimeZoneById(incidentData.TimeZone);
+                    //DateTime TimeZone_utc = TimeZoneInfo.ConvertTimeToUtc(Convert.ToDateTime(incidentData.DateTimeIncident), Zone);
+
+                    //timezone code
 
                     var newincidentReport = new IncidentDataVM()
                     {
                         IncidentTypeId = incidentData.IncidentTypeId,
                         UserId = loggedinuserId,
                         ProjectId = incidentData.ProjectId,
-                        DateTimeIncidentUtc = TimeZone_utc,
+                        DateTimeIncident = incidentData.DateTimeIncident,
                         ReporterCompanyName = incidentData.ReporterCompanyName,
                         LocationId = incidentData.LocationId,
                         Description = incidentData.Description,
                         ActionTaken = incidentData.ActionTaken,
                         StateId= incidentData.StateId,
-                        DateTimeReportedUtc = DateTime.UtcNow
+                        DateTimeReportSubmittedUtc = DateTime.UtcNow
                     };
                     using (TCPL_Keystone_XL_Safety_ReportsContext incidentDC = new TCPL_Keystone_XL_Safety_ReportsContext())
                     {
@@ -263,33 +265,34 @@ namespace Incident_Reporting.Controllers
                                     {
                                         var file = files[i];
                                         var fileName = Path.GetFileName(file.FileName); // GetFileName is necessary for Edge and prob IE
+                                        var fileExt= Path.GetExtension(file.FileName);
                                         var fileSize = file.Length;
                                         var fileData = new StringBuilder();
 
-                                        using (var reader = new StreamReader(file.OpenReadStream()))
-                                        {
-                                            using (var fileStream = new MemoryStream())
-                                            {
-                                                var s = reader.ReadLine();
-                                                while (s != null)
-                                                {
-                                                    fileData.Append(s);
-                                                    fileData.Append(Environment.NewLine);
-                                                    s = reader.ReadLine();
-                                                }
-                                            }
-                                        }
-                                        using (var stream = GenerateMemoryStreamFromString(fileData.ToString()))
-                                        {
+                                        //using (var reader = new StreamReader(file.OpenReadStream()))
+                                        //{
+                                        //    using (var fileStream = new MemoryStream())
+                                        //    {
+                                        //        var s = reader.ReadLine();
+                                        //        while (s != null)
+                                        //        {
+                                        //            fileData.Append(s);
+                                        //            fileData.Append(Environment.NewLine);
+                                        //            s = reader.ReadLine();
+                                        //        }
+                                        //    }
+                                        //}
+                                        //using (var stream = GenerateMemoryStreamFromString(fileData.ToString()))
+                                        //{
 
                                             var newincidentReportFileAttach = new IncidentDataVM()
                                             {
                                                 Id= newincidentReport.Id,
-                                                FileLocation = file.FileName,
-                                                FileExtension = stream.ToArray()
+                                                FileLocation =  file.FileName,
+                                                FileExtension = fileExt
                                             };
-                                            _incidentDataService.CreateAttachment(newincidentReportFileAttach);
-                                        }
+                                            _incidentDataService.CreateAttachment(newincidentReportFileAttach,file);
+                                       // }
                                     }
                                     transaction.Commit();
                                 }

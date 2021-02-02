@@ -18,6 +18,7 @@ namespace Incident_Reporting.Data.Entities
         public int CountryId { get; set; }
 
         public virtual Country Country { get; set; }
+        public virtual ICollection<IncidentReport> IncidentReports { get; set; }
         public virtual ICollection<IncidentToStateProvince> IncidentToStateProvinces { get; set; }
     }
 }

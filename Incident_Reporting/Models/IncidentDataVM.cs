@@ -32,18 +32,17 @@ namespace Incident_Reporting.Models
         public int ProjectId { get; set; }
         [Required]
         public int LocationId { get; set; }
-
         public string TimeZone { get; set; }
         [Required]
-        public DateTime? DateTimeIncidentUtc { get; set; }
+        public DateTime? DateTimeIncident{ get; set; }
         public string ReporterCompanyName { get; set; }
         public string Location { get; set; }
         public string Description { get; set; }
         public string ActionTaken { get; set; }
-        public DateTime DateTimeReportedUtc { get; set; }
+        public DateTime DateTimeReportSubmittedUtc { get; set; }
 
         public int AttachId { get; set; }
         public string FileLocation { get; set; }
-        public byte[] FileExtension { get; set; }
+        public string FileExtension { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Incident_Reporting.Extensions;
 using System.Linq;
 using System;
+using System.IO;
 
 namespace Incident_Reporting.Data
 {
@@ -45,12 +46,13 @@ namespace Incident_Reporting.Data
                 IncidentTypeId = model.IncidentTypeId,
                 UserId = model.UserId,
                 ProjectId = model.ProjectId,
-                DateTimeIncidentUtc = model.DateTimeIncidentUtc,
+                DateTimeIncident = model.DateTimeIncident,
                 ReporterCompanyName = model.ReporterCompanyName,
                 LocationClassId = model.LocationId,
+                StateProvinceId= model.StateId,
                 Description = model.Description,
                 ActionTaken = model.ActionTaken,
-                DateTimeReportedUtc = DateTime.UtcNow
+                DateTimeReportSubmittedUtc = DateTime.UtcNow
             };
             incidentDC.IncidentReports.Add(newincidentReport);
             incidentDC.Entry(newincidentReport).State = EntityState.Added;
@@ -58,22 +60,31 @@ namespace Incident_Reporting.Data
            
             model.Id = (int)newincidentReport.Id;
 
-            var incidentToState = new IncidentToStateProvince()
-            {
-                IncidentId = model.Id,
-                StateProvinceId = model.StateId
-            };
-            incidentDC.IncidentToStateProvinces.Add(incidentToState);
-            incidentDC.Entry(incidentToState).State = EntityState.Added;
-            incidentDC.SaveChanges();
+            //var incidentToState = new IncidentToStateProvince()
+            //{
+            //    IncidentId = model.Id,
+            //    StateProvinceId = model.StateId
+            //};
+            //incidentDC.IncidentToStateProvinces.Add(incidentToState);
+            //incidentDC.Entry(incidentToState).State = EntityState.Added;
+            //incidentDC.SaveChanges();
         }
-        public void CreateAttachment(IncidentDataVM model)
+        public void CreateAttachment(IncidentDataVM model, IFormFile file)
         {
             var incidentDC = _dbContext as TCPL_Keystone_XL_Safety_ReportsContext;
 
+            string file_path = @"\\ptalfsg001\data\GIS_Dev\Incident_Reports\" + model.Id;
+
+           
+            Directory.CreateDirectory(file_path);
+            string file_path_fileName= string.Concat(file_path, "\\", file.FileName); 
+            using (var fileStream = new FileStream(file_path_fileName, FileMode.Create))
+            {
+                file.CopyTo(fileStream);
+            }
             var attachment = new Attachment()
             {
-                FileLocation = model.FileLocation,
+                FileLocation = file_path_fileName,
                 FileExtension = model.FileExtension
             };
             incidentDC.Attachments.Add(attachment);
