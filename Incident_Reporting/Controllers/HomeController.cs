@@ -269,21 +269,21 @@ namespace Incident_Reporting.Controllers
                                         var fileSize = file.Length;
                                         var fileData = new StringBuilder();
 
-                                        //using (var reader = new StreamReader(file.OpenReadStream()))
-                                        //{
-                                        //    using (var fileStream = new MemoryStream())
-                                        //    {
-                                        //        var s = reader.ReadLine();
-                                        //        while (s != null)
-                                        //        {
-                                        //            fileData.Append(s);
-                                        //            fileData.Append(Environment.NewLine);
-                                        //            s = reader.ReadLine();
-                                        //        }
-                                        //    }
-                                        //}
-                                        //using (var stream = GenerateMemoryStreamFromString(fileData.ToString()))
-                                        //{
+                                        ////using (var reader = new StreamReader(file.OpenReadStream()))
+                                        ////{
+                                        ////    using (var fileStream = new MemoryStream())
+                                        ////    {
+                                        ////        var s = reader.ReadLine();
+                                        ////        while (s != null)
+                                        ////        {
+                                        ////            fileData.Append(s);
+                                        ////            fileData.Append(Environment.NewLine);
+                                        ////            s = reader.ReadLine();
+                                        ////        }
+                                        ////    }
+                                        ////}
+                                        ////using (var stream = GenerateMemoryStreamFromString(fileData.ToString()))
+                                        ////{
 
                                             var newincidentReportFileAttach = new IncidentDataVM()
                                             {
